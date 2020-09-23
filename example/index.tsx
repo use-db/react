@@ -11,13 +11,10 @@ const App = () => {
     </DBProvider>
   );
 };
-async function addUser() {
-  return;
-}
 function Root() {
   React.useEffect(() => {
-    connection
-      .query(
+    async function setDBData() {
+      await connection.query(
         db.users
           .insert({
             id: 1,
@@ -25,18 +22,39 @@ function Root() {
             email: 'user1@email.com',
           })
           .toJS()
-      )
-      .then(() => {
-        setDBLoaded(true);
-      });
+      );
+
+      setDBLoaded(true);
+    }
+
+    setDBData();
   }, []);
   let [dbLoaded, setDBLoaded] = React.useState(false);
   return <div>{dbLoaded ? <DataRenderer /> : null}</div>;
 }
 function DataRenderer() {
-  let { loading, res, error } = useDB(db.users.find(1).toJS());
-  console.log('*** 🔥res,', loading, res, error);
-  // @ts-ignore
-  return <div>{loading ? 'Loading...' : res?.name}</div>;
+  let { loading, data, error } = useDB(db.users.find(2).toJS());
+  console.log('*** 🔥res,', loading, data, error);
+  // // @ts-ignore
+  let { setQuery } = useDB();
+  return (
+    <div>
+      {loading
+        ? 'Loading...'
+        : // @ts-ignore
+          data?.name}
+      <button
+        onClick={() =>
+          setQuery(
+            db.users
+              .insert({ id: 2, name: 'user2', email: 'user2@email.com' })
+              .toJS()
+          )
+        }
+      >
+        Add more
+      </button>
+    </div>
+  );
 }
 ReactDOM.render(<App />, document.getElementById('root'));

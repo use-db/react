@@ -1,19 +1,19 @@
 import { useEffect, useState, useContext } from 'react';
 import UseDBReactContext from '../components/Context';
 
-export function useDB(queryJSON: any) {
+export function useDB(queryJSON?: any) {
   const connection: any = useContext(UseDBReactContext);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | undefined>();
-  const [res, setRes] = useState();
-  useEffect(() => {
+  const [data, setData] = useState();
+  const setQuery = (queryObj: any) => {
     setLoading(true);
     let cancel = false;
-    connection.query(queryJSON).then(
+    connection.query(queryObj).then(
       (res: any) => {
         if (cancel) return;
         setLoading(false);
-        setRes(res);
+        setData(res);
       },
       (error: Error) => {
         if (cancel) return;
@@ -24,6 +24,11 @@ export function useDB(queryJSON: any) {
     return () => {
       cancel = true;
     };
-  }, []);
-  return { loading, error, res };
+  };
+  if (queryJSON) {
+    useEffect(() => {
+      setQuery(queryJSON);
+    }, []);
+  }
+  return { loading, error, data, setQuery };
 }
