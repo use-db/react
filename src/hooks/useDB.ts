@@ -1,36 +1,30 @@
 import { useEffect, useState, useContext } from 'react';
+import { Connection, QueryData, md5 } from '@usedb/core';
 import UseDBReactContext from '../components/Context';
 
-export interface QueryData {
-  collection: string;
-  operation: string;
-  payload: any;
-}
+type UseDBMap = Map<string, Array<Function>>;
 
 const callQuery = (
-  connection: any,
+  connection: Connection,
+  useDBMap: UseDBMap,
   queryObj: QueryData,
-  setLoading: any,
-  setData: any,
-  setError: any,
+  setStatus: Function,
   params?: { refetchQueries: Array<QueryData> }
 ) => {
-  setLoading(true);
+  setStatus({ loading: true });
   let cancel = false;
-  connection.query(queryObj).then(
+  connection.query(queryObj, true).then(
     (res: any) => {
       if (cancel) return;
       if (params && params.refetchQueries) {
-        performRefetch(connection, params.refetchQueries);
+        performRefetch(connection, useDBMap, params.refetchQueries);
       } else {
-        setLoading(false);
-        setData(res);
+        setStatus({ loading: false, data: res });
       }
     },
     (error: Error) => {
       if (cancel) return;
-      setLoading(false);
-      setError(error);
+      setStatus({ loading: false, error });
     }
   );
   return () => {
@@ -38,50 +32,66 @@ const callQuery = (
   };
 };
 
-type StoredCallbacks = { setLoading: any; setData: any; setError: any };
-const queryCache: Map<string, Array<StoredCallbacks>> = new Map();
-const updateQueryCache = (query: QueryData, callbacks: StoredCallbacks) => {
-  const stringified = JSON.stringify(query);
-  let cachedCallbacks = queryCache.get(stringified);
-  if (cachedCallbacks) {
-    cachedCallbacks.push(callbacks);
+const updateUseDBMap = (
+  dBMap: UseDBMap,
+  query: QueryData,
+  callback: Function
+) => {
+  let hashedQuery = md5(JSON.stringify(query));
+  let hashMap = dBMap.get(hashedQuery);
+  if (hashMap) {
+    hashMap.push(callback);
   } else {
-    queryCache.set(stringified, [callbacks]);
+    dBMap.set(hashedQuery, [callback]);
   }
 };
-const performRefetch = (connection: any, queries: Array<QueryData>) => {
+const performRefetch = (
+  connection: Connection,
+  useDBMap: UseDBMap,
+  queries: Array<QueryData>
+) => {
   queries.forEach((query: QueryData) => {
-    const stringified = JSON.stringify(query);
-    let cachedCallbacks: Array<StoredCallbacks> | undefined = queryCache.get(
-      stringified
+    let useDBMapCallbacks: Array<Function> | undefined = useDBMap.get(
+      md5(JSON.stringify(query))
     );
-    if (cachedCallbacks) {
-      cachedCallbacks.forEach((callback: StoredCallbacks) => {
-        callQuery(
-          connection,
-          query,
-          callback.setLoading,
-          callback.setData,
-          callback.setError
-        );
+    if (useDBMapCallbacks) {
+      useDBMapCallbacks.forEach((callback: Function) => {
+        callQuery(connection, useDBMap, query, callback);
       });
     }
   });
+};
+type IStatus = {
+  loading: boolean;
+  error: Error | undefined;
+  data: any;
 };
 export function useDB(
   queryData?: QueryData,
   commonParams?: { refetchQueries: Array<QueryData> }
 ) {
-  const connection: any = useContext(UseDBReactContext);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | undefined>();
-  const [data, setData] = useState();
+  const {
+    connection,
+    useDBMap,
+  }: {
+    connection: Connection;
+    useDBMap: UseDBMap;
+  } = useContext(UseDBReactContext);
+  const [status, setStatus] = useState<IStatus>({
+    loading: false,
+    data: undefined,
+    error: undefined,
+  });
+  function refetch(query: QueryData) {
+    setQuery(query);
+  }
+
   function setQuery(
-    queryObj: any,
+    queryObj: QueryData,
     params?: { refetchQueries: Array<QueryData> }
   ) {
-    updateQueryCache(queryObj, { setLoading, setData, setError });
-    callQuery(connection, queryObj, setLoading, setData, setError, params);
+    updateUseDBMap(useDBMap, queryObj, setStatus);
+    callQuery(connection, useDBMap, queryObj, setStatus, params);
   }
 
   if (queryData) {
@@ -89,5 +99,5 @@ export function useDB(
       setQuery(queryData, commonParams);
     }, []);
   }
-  return { loading, error, data, setQuery };
+  return { ...status, setQuery, refetch };
 }

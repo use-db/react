@@ -26,7 +26,6 @@ function Root() {
           },
         })
       );
-
       setDBLoaded(true);
     }
 
@@ -36,15 +35,7 @@ function Root() {
   return <div>{dbLoaded ? <DataRenderer /> : null}</div>;
 }
 function DataRenderer() {
-  // let { loading, data, error } = useDB(
-  //   db.users.findOne({
-  //     where: {
-  //       id: 2,
-  //     },
-  //   })
-  // );
   let { loading, data, error, setQuery } = useDB();
-  console.log('*** 🔥res,', db, loading, data, error);
   return (
     <div>
       {loading
@@ -58,9 +49,11 @@ function DataRenderer() {
               data: { id: 2, name: 'user2', email: 'user2@email.com' },
             }),
             {
-              refetchQueries: db.users.findMany({
-                where: {},
-              }),
+              refetchQueries: [
+                db.users.findMany({
+                  where: {},
+                }),
+              ],
             }
           );
         }}
