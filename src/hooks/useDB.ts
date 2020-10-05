@@ -9,11 +9,12 @@ const callQuery = (
   useDBMap: UseDBMap,
   queryObj: QueryData,
   setStatus: Function,
-  params?: { refetchQueries: Array<QueryData> }
+  hardFetch: boolean = false,
+  params?: { refetchQueries?: Array<QueryData> }
 ) => {
   setStatus({ loading: true });
   let cancel = false;
-  connection.query(queryObj, true).then(
+  connection.query(queryObj, hardFetch).then(
     (res: any) => {
       if (cancel) return;
       if (params && params.refetchQueries) {
@@ -56,7 +57,7 @@ const performRefetch = (
     );
     if (useDBMapCallbacks) {
       useDBMapCallbacks.forEach((callback: Function) => {
-        callQuery(connection, useDBMap, query, callback);
+        callQuery(connection, useDBMap, query, callback, true);
       });
     }
   });
@@ -70,6 +71,7 @@ export function useDB(
   queryData?: QueryData,
   commonParams?: { refetchQueries: Array<QueryData> }
 ) {
+  let storedQueryData = queryData;
   const {
     connection,
     useDBMap,
@@ -82,21 +84,25 @@ export function useDB(
     data: undefined,
     error: undefined,
   });
-  function refetch(query: QueryData) {
-    setQuery(query);
+  function refetch() {
+    if (storedQueryData) {
+      setQuery(storedQueryData, {}, true);
+    }
   }
 
   function setQuery(
     queryObj: QueryData,
-    params?: { refetchQueries: Array<QueryData> }
+    params?: { refetchQueries?: Array<QueryData> },
+    hardFetch: boolean = false
   ) {
+    storedQueryData = queryObj;
     updateUseDBMap(useDBMap, queryObj, setStatus);
-    callQuery(connection, useDBMap, queryObj, setStatus, params);
+    callQuery(connection, useDBMap, queryObj, setStatus, hardFetch, params);
   }
 
   if (queryData) {
     useEffect(() => {
-      setQuery(queryData, commonParams);
+      setQuery(queryData, commonParams, false);
     }, []);
   }
   return { ...status, setQuery, refetch };

@@ -3,13 +3,14 @@ import { db } from '@usedb/core';
 import { useDB } from '../.';
 
 const FETCH_ALL = db.todos.findMany({ where: {} });
+let count = 0;
 export default function Todo() {
   const allTodos = useDB(FETCH_ALL);
   const addTodo = useDB();
   if (allTodos.loading) {
     return <div>Loading..</div>;
   }
-  let count = (allTodos.data?.length || 0) + 1;
+
   return (
     <div
       style={{
@@ -20,28 +21,30 @@ export default function Todo() {
     >
       <button
         style={{ height: 20, width: 100 }}
-        onClick={() =>
+        onClick={() => {
           addTodo.setQuery(
             db.todos.create({
-              data: { id: count, caption: '', done: false },
+              data: { id: ++count, caption: '', done: false },
             }),
             { refetchQueries: [FETCH_ALL] }
-          )
-        }
+          );
+          // allTodos.refetch();
+        }}
       >
         Add task
       </button>
       {allTodos.data
-        ? allTodos.data.map(todo => <TodoItem key={todo.id} todo={todo} />)
+        ? allTodos.data.map(todo => (
+            <TodoItem key={todo.id} todo={todo} refetch={allTodos.refetch} />
+          ))
         : null}
     </div>
   );
 }
 
-function TodoItem({ todo }) {
+function TodoItem({ todo, refetch }: any) {
   const [value, setValue] = React.useState(todo.caption);
   const updateQuery = useDB();
-
   const handleChange = (e: any) => {
     e.persist();
     setValue(e.target.value);
@@ -69,6 +72,7 @@ function TodoItem({ todo }) {
       }),
       { refetchQueries: [FETCH_ALL] }
     );
+    // refetch();
   };
   return (
     <div style={{ margin: 10 }}>
