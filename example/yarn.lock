@@ -966,10 +966,10 @@
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
-"@usedb/core@^0.1.10":
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/@usedb/core/-/core-0.1.10.tgz#8d8d814b18cda1f6abc0e0ce704a1b79d9066a4b"
-  integrity sha512-cFhYanLsf9BTe8zkuZvMz2P8+6xFziOHvUr7zbrifNk6enlHat429v1spMMMzhgFwSUpiFAaOkxhj2l85fqnUg==
+"@usedb/core@^0.1.13":
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/@usedb/core/-/core-0.1.13.tgz#31fd471715831f3e8dbccaf5ab14064ee596a427"
+  integrity sha512-1cF4ufrdCLtexmbsk/2BHiZ8jqpiEMTxNkVh6WB0zpVhbrXPG/Ee5CScvwm7wvQaLPnG+42/RyNdbtRFxCfsnQ==
   dependencies:
     "@types/lodash" "^4.14.161"
     lodash "^4.17.20"
