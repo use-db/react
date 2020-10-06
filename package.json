@@ -1,6 +1,6 @@
 {
     "name": "@usedb/react",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "license": "MIT",
     "author": "Ankur Kedia",
     "main": "dist/index.js",
