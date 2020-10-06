@@ -1343,10 +1343,10 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@usedb/core@^0.1.10":
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/@usedb/core/-/core-0.1.10.tgz#8d8d814b18cda1f6abc0e0ce704a1b79d9066a4b"
-  integrity sha512-cFhYanLsf9BTe8zkuZvMz2P8+6xFziOHvUr7zbrifNk6enlHat429v1spMMMzhgFwSUpiFAaOkxhj2l85fqnUg==
+"@usedb/core@^0.1.12":
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/@usedb/core/-/core-0.1.12.tgz#023b3b8a944ea673c29867cea705837b21de251b"
+  integrity sha512-vBq8LUxYaLvw9coeba6ACK/dPdVNOrE0q+P4bP8cDXRbFUoB4wU4S1AadIaunzd7VsLyKzALBolrefP7+tU23w==
   dependencies:
     "@types/lodash" "^4.14.161"
     lodash "^4.17.20"

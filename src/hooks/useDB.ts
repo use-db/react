@@ -100,10 +100,10 @@ export function useDB(
     callQuery(connection, useDBMap, queryObj, setStatus, hardFetch, params);
   }
 
-  if (queryData) {
-    useEffect(() => {
+  useEffect(() => {
+    if (queryData) {
       setQuery(queryData, commonParams, false);
-    }, []);
-  }
+    }
+  }, []);
   return { ...status, setQuery, refetch };
 }
