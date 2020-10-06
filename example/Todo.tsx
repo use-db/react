@@ -1,12 +1,15 @@
 import * as React from 'react';
 import { db } from '@usedb/core';
 import { useDB } from '../.';
+import { maxBy } from 'lodash';
 
 const FETCH_ALL = db.todos.findMany({ where: {} });
 let count = 0;
 export default function Todo() {
   const allTodos = useDB(FETCH_ALL);
   const addTodo = useDB();
+  let maxItem = maxBy(allTodos.data, (todo: any) => todo.id);
+  count = maxItem ? maxItem.id : 0;
   if (allTodos.loading) {
     return <div>Loading..</div>;
   }

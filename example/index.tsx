@@ -1,10 +1,18 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { db, Connection, RuntimeBinding } from '@usedb/core';
+import {
+  db,
+  Connection,
+  RuntimeBinding,
+  LocalStorageBinding,
+  CloudStorageBinding,
+} from '@usedb/core';
 import { useDB, DBProvider } from '../.';
 import Todo from './Todo';
-const connection = new Connection({ bind: new RuntimeBinding() });
+const connection = new Connection({
+  bind: new CloudStorageBinding('http://localhost:3001'),
+});
 const App = () => {
   return (
     <DBProvider connection={connection}>
