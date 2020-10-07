@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.161",
-    "@usedb/core": "^0.1.13",
+    "@usedb/core": "^0.1.15",
     "lodash": "^4.17.20",
     "react-app-polyfill": "^1.0.0"
   },

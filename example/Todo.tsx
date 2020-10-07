@@ -13,7 +13,6 @@ export default function Todo() {
   if (allTodos.loading) {
     return <div>Loading..</div>;
   }
-
   return (
     <div
       style={{
@@ -52,13 +51,16 @@ function TodoItem({ todo, refetch }: any) {
     e.persist();
     setValue(e.target.value);
   };
-  const handleBlur = () => {
-    updateQuery.setQuery(
-      db.todos.update({
-        where: { id: todo.id },
-        data: { ...todo, caption: value },
-      })
-    );
+  const handleBlur = (e: any) => {
+    if (e.keyCode === 13) {
+      updateQuery.setQuery(
+        db.todos.update({
+          where: { id: todo.id },
+          data: { ...todo, caption: value },
+        }),
+        { refetchQueries: [FETCH_ALL] }
+      );
+    }
   };
   const handleCheck = () => {
     updateQuery.setQuery(
@@ -83,7 +85,7 @@ function TodoItem({ todo, refetch }: any) {
         style={{ textDecoration: `${todo.done ? 'line-through' : 'none'}` }}
         value={value}
         onChange={handleChange}
-        onBlur={handleBlur}
+        onKeyUp={handleBlur}
       ></input>
       <input type="checkbox" checked={todo.done} onChange={handleCheck}></input>
       <button onClick={removeItem}>remove</button>
